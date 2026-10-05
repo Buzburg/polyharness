@@ -1,0 +1,25 @@
+{
+  "name": "polyharness",
+  "version": "0.1.0",
+  "description": "The Universal Transpiler & Package Manager for AI Agent Harnesses (Claude Code, DeepSeek Harness, Codex, AGENTS.md, Cursor)",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "polyharness": "bin/polyharness.js"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "build": "node bin/polyharness.js build"
+  },
+  "keywords": [
+    "ai-agents",
+    "agent-harness",
+    "claude-code",
+    "deepseek-harness",
+    "cursorrules",
+    "agents-md",
+    "transpiler"
+  ],
+  "author": "Buzburg AI <dev@buzburg.ai>",
+  "license": "MIT"
+}
