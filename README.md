@@ -18,6 +18,15 @@
          ▼                  ▼                  ▼                  ▼
     CLAUDE.md          AGENTS.md         dsh.config.json    .cursorrules
  (Anthropic specs)    (OpenCode/AGY)   (DeepSeek Harness)     (Cursor)
+         │                                                        │
+         ├────────────────────────────────────────────────────────┤
+         ▼                                                        ▼
+  .claude/rules/*.md                                    .cursor/rules/*.mdc
+  .claude/mcp.json                                      .cursor/mcp.json
+  (Progressive Disclosure)                              (Scoped .mdc Rules)
+         │
+         └─────────────► .githooks/pre-commit & scripts/safe-exec.sh
+                         (Deterministic Action Guardrails)
 ```
 
 ---
@@ -25,9 +34,12 @@
 ## ⚡ Features
 
 - **Write Once, Target Everywhere:** Generates calibrated `CLAUDE.md`, `AGENTS.md`, `dsh.config.json`, and `.cursorrules`.
-- **Conflict & Contradiction Detection:** Built-in semantic linter detects opposing instructions before agents get confused.
+- **Behavior-Guided Progressive Disclosure:** Emits directory-scoped sub-rules (`.cursor/rules/*.mdc` and `.claude/rules/*.md`) based on [arXiv:2607.13285](https://arxiv.org/abs/2607.13285) to cut token usage and prevent context saturation.
+- **Deterministic Action Guardrails (`polyharness protect`):** Solves the configuration vulnerability highlighted in [HarnessRisk (arXiv:2608.17597)](https://arxiv.org/abs/2608.17597) by enforcing `.githooks/pre-commit` and execution filters rather than relying solely on soft prompt warnings.
+- **Cross-Platform MCP Registry:** Centrally configures MCP tools and transpiles to `.cursor/mcp.json` and `.claude/mcp.json`.
+- **Semantic Conflict & Contradiction Detection:** Built-in semantic linter detects opposing instructions before agents get confused.
 - **Drift Protection:** CI check guarantees that scripts referenced in agent instructions match actual project files.
-- **Zero Heavy Dependencies:** Lightweight, blazingly fast ESM implementation.
+- **Zero Heavy Dependencies:** Lightweight, blazingly fast native ESM implementation.
 
 ---
 
@@ -49,10 +61,13 @@ npx polyharness init
 # 1. Initialize template in your repo
 polyharness init
 
-# 2. Compile to all agent formats
+# 2. Compile to all agent formats (including scoped rules & MCP)
 polyharness build
 
-# 3. Lint for contradictions & missing verification scripts
+# 3. Install deterministic pre-commit git hooks for protected paths
+polyharness protect
+
+# 4. Lint for contradictions & missing verification scripts
 polyharness check
 ```
 

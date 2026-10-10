@@ -1,6 +1,6 @@
 {
   "name": "polyharness",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The Universal Transpiler & Package Manager for AI Agent Harnesses (Claude Code, DeepSeek Harness, Codex, AGENTS.md, Cursor)",
   "main": "src/index.js",
   "type": "module",

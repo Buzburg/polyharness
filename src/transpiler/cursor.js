@@ -27,3 +27,33 @@ export function transpileCursor(config) {
 
   return lines.join('\n');
 }
+
+/**
+ * Transpiles a scoped rule into .cursor/rules/<name>.mdc with frontmatter
+ */
+export function transpileCursorMdc(rule) {
+  const globsStr = Array.isArray(rule.globs) ? rule.globs.join(', ') : (rule.globs || '*');
+  const lines = [
+    `---`,
+    `description: ${rule.description || rule.name}`,
+    `globs: ${globsStr}`,
+    `alwaysApply: false`,
+    `---`,
+    ``,
+    `# ${rule.name}`,
+    ``,
+    `<!-- Generated automatically by polyharness — DO NOT EDIT DIRECTLY -->`,
+    ``,
+    `${rule.description || ''}`,
+    ``,
+    `## Guidelines`
+  ];
+
+  if (rule.guidelines && Array.isArray(rule.guidelines)) {
+    for (const g of rule.guidelines) {
+      lines.push(`- ${g}`);
+    }
+  }
+
+  return lines.join('\n');
+}

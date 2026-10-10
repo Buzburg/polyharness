@@ -24,6 +24,14 @@ export function validateHarnessConfig(config) {
     errors.push("'commands' must be an object defining build/test scripts");
   }
 
+  if (config.rules && !Array.isArray(config.rules)) {
+    errors.push("'rules' must be an array of scoped rule objects");
+  }
+
+  if (config.mcp_servers && (typeof config.mcp_servers !== 'object' || Array.isArray(config.mcp_servers))) {
+    errors.push("'mcp_servers' must be an object defining MCP servers");
+  }
+
   return {
     valid: errors.length === 0,
     errors,
@@ -50,6 +58,26 @@ export const DEFAULT_CONFIG = {
     test: "npm test",
     lint: "npm run lint"
   },
+  rules: [
+    {
+      name: "api-endpoints",
+      description: "Standards for REST API routes and handlers",
+      globs: ["src/api/**/*.ts", "routes/**/*.ts"],
+      guidelines: [
+        "Validate incoming request parameters with schema validation",
+        "Return standardized JSON error responses"
+      ]
+    },
+    {
+      name: "testing-standards",
+      description: "Requirements for unit and integration tests",
+      globs: ["tests/**/*.test.js", "tests/**/*.test.ts"],
+      guidelines: [
+        "Mock external HTTP requests",
+        "Assert error conditions and edge cases"
+      ]
+    }
+  ],
   safety: {
     destructive_commands_deny: [
       "rm -rf /",
@@ -61,6 +89,15 @@ export const DEFAULT_CONFIG = {
       ".git",
       "secrets/"
     ]
+  },
+  mcp_servers: {
+    github: {
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-github"],
+      env: {
+        GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+      }
+    }
   },
   skills: [
     {

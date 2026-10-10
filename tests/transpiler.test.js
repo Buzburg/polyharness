@@ -18,4 +18,20 @@ test('compileAll generates valid files for all 4 targets', () => {
   const parsedDsh = JSON.parse(result['dsh.config.json']);
   assert.strictEqual(parsedDsh.name, 'my-project');
   assert.strictEqual(parsedDsh.scripts.test, 'npm test');
+
+  // Verify scoped rules (Progressive Disclosure)
+  assert.ok(result['.cursor/rules/api-endpoints.mdc'], 'Must generate Cursor .mdc scoped rule');
+  assert.ok(result['.cursor/rules/api-endpoints.mdc'].includes('globs: src/api/**/*.ts, routes/**/*.ts'));
+  assert.ok(result['.claude/rules/api-endpoints.md'], 'Must generate Claude Code scoped rule');
+
+  // Verify MCP server transpilation
+  assert.ok(result['.cursor/mcp.json'], 'Must generate .cursor/mcp.json');
+  const cursorMcp = JSON.parse(result['.cursor/mcp.json']);
+  assert.ok(cursorMcp.mcpServers.github, 'Must contain github MCP server');
+
+  // Verify deterministic safety hooks (HarnessRisk hardening)
+  assert.ok(result['.githooks/pre-commit'], 'Must generate pre-commit git hook');
+  assert.ok(result['.githooks/pre-commit'].includes('.env'));
+  assert.ok(result['scripts/safe-exec.sh'], 'Must generate safe-exec wrapper');
+  assert.ok(result['scripts/safe-exec.sh'].includes('rm -rf /'));
 });

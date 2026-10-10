@@ -46,3 +46,30 @@ export function transpileClaude(config) {
 
   return lines.join('\n');
 }
+
+/**
+ * Transpiles a scoped rule into .claude/rules/<name>.md
+ */
+export function transpileClaudeRule(rule) {
+  const lines = [
+    `# Rule: ${rule.name}`,
+    `<!-- Generated automatically by polyharness — DO NOT EDIT DIRECTLY -->`,
+    ``,
+    `${rule.description || ''}`,
+    ``
+  ];
+
+  if (rule.globs) {
+    const globsStr = Array.isArray(rule.globs) ? rule.globs.join(', ') : rule.globs;
+    lines.push(`**Applicable Paths**: \`${globsStr}\`\n`);
+  }
+
+  lines.push(`## Specific Guidelines`);
+  if (rule.guidelines && Array.isArray(rule.guidelines)) {
+    for (const g of rule.guidelines) {
+      lines.push(`- ${g}`);
+    }
+  }
+
+  return lines.join('\n');
+}

@@ -40,10 +40,36 @@ switch (command) {
     const compiled = compileAll(config);
     for (const [filename, content] of Object.entries(compiled)) {
       const outPath = path.resolve(process.cwd(), filename);
+      const dir = path.dirname(outPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
       fs.writeFileSync(outPath, content, 'utf-8');
       console.log(`✔ Generated ${filename}`);
     }
     console.log('✨ All agent harness targets built successfully!');
+    break;
+  }
+
+  case 'protect': {
+    if (!fs.existsSync(CONFIG_PATH)) {
+      console.error('Error: harness.config.json not found.');
+      process.exit(1);
+    }
+    const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
+    const config = JSON.parse(raw);
+
+    const compiled = compileAll(config);
+    if (compiled['.githooks/pre-commit']) {
+      const hookPath = path.resolve(process.cwd(), '.githooks/pre-commit');
+      const dir = path.dirname(hookPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(hookPath, compiled['.githooks/pre-commit'], { encoding: 'utf-8', mode: 0o755 });
+      console.log('✔ Installed deterministic pre-commit hook in .githooks/pre-commit');
+      console.log('ℹ To enable git hook enforcement, run: git config core.hooksPath .githooks');
+    }
     break;
   }
 
@@ -71,7 +97,7 @@ switch (command) {
   }
 
   case 'version': {
-    console.log('polyharness v0.1.0 — Universal AI Agent Harness Transpiler');
+    console.log('polyharness v0.2.0 — Universal AI Agent Harness Transpiler');
     break;
   }
 
@@ -80,7 +106,8 @@ switch (command) {
 
 Usage:
   polyharness init       Generate harness.config.json template
-  polyharness build      Compile harness config to CLAUDE.md, AGENTS.md, dsh.config.json, .cursorrules
+  polyharness build      Compile harness config to CLAUDE.md, AGENTS.md, dsh.config.json, .cursorrules, scoped rules & MCP
+  polyharness protect    Install deterministic pre-commit hook from safety policy
   polyharness check      Lint harness config and detect contradictory rules
   polyharness version    Display version information`);
     break;

@@ -21,3 +21,26 @@ test('lintHarness flags contradictory instructions', () => {
   assert.strictEqual(result.clean, false);
   assert.ok(result.issues.some(i => i.message.includes('Contradictory guidelines')));
 });
+
+test('lintHarness flags invalid scoped rules and missing MCP commands', () => {
+  const badConfig = {
+    ...DEFAULT_CONFIG,
+    rules: [
+      {
+        name: '',
+        globs: [],
+        guidelines: ['Do something']
+      }
+    ],
+    mcp_servers: {
+      broken: {
+        command: ''
+      }
+    }
+  };
+
+  const result = lintHarness(badConfig);
+  assert.strictEqual(result.clean, false);
+  assert.ok(result.issues.some(i => i.message.includes('missing a required name')));
+  assert.ok(result.issues.some(i => i.message.includes('no executable command')));
+});
