@@ -2,9 +2,8 @@
 
 > **The Universal Transpiler & Package Manager for AI Agent Harnesses**
 
-[![CI](https://github.com/buzburgai-arch/polyharness/actions/workflows/ci.yml/badge.svg)](https://github.com/buzburgai-arch/polyharness/actions)
+[![CI](https://github.com/Buzburg/polyharness/actions/workflows/ci.yml/badge.svg)](https://github.com/Buzburg/polyharness/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![npm version](https://img.shields.io/npm/v/polyharness.svg)](https://www.npmjs.com/package/polyharness)
 
 `polyharness` is the "Babel + pnpm" for AI coding agent configurations. Instead of manually maintaining and synchronizing divergent rules across `CLAUDE.md`, `AGENTS.md`, `dsh.config.json` (DeepSeek Harness), and `.cursorrules`, define your project once in `harness.config.json` and compile to all platforms with a single command.
 
@@ -49,7 +48,9 @@
 
 ```bash
 # Global install via npm
-npm install -g polyharness
+git clone https://github.com/Buzburg/polyharness.git
+cd polyharness
+npm install --global .
 
 # Or npx
 npx polyharness init
