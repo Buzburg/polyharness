@@ -35,3 +35,9 @@ test('compileAll generates valid files for all 4 targets', () => {
   assert.ok(result['scripts/safe-exec.sh'], 'Must generate safe-exec wrapper');
   assert.ok(result['scripts/safe-exec.sh'].includes('rm -rf /'));
 });
+
+test('rejects unsafe scoped rule filenames before writing', () => {
+  for (const name of ['../../../escape', 'a/b', '..', 'a\\b']) {
+    assert.throws(() => compileAll({ ...DEFAULT_CONFIG, rules: [{name, guidelines: []}] }));
+  }
+});

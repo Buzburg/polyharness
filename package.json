@@ -1,7 +1,7 @@
 {
   "name": "polyharness",
-  "version": "0.2.0",
-  "description": "The Universal Transpiler & Package Manager for AI Agent Harnesses (Claude Code, DeepSeek Harness, Codex, AGENTS.md, Cursor)",
+  "version": "0.2.1",
+  "description": "One config. Every coding assistant. Generate agent instructions, scoped rules, MCP config, and opt-in Git checks.",
   "main": "src/index.js",
   "type": "module",
   "bin": {

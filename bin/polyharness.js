@@ -7,6 +7,19 @@ import { compileAll, DEFAULT_CONFIG, lintHarness, validateHarnessConfig } from '
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
 
+function checkDestination(filename) {
+  const root = process.cwd();
+  const out = path.resolve(root, filename);
+  if (!out.startsWith(root + path.sep)) throw new Error('Output escapes project');
+  let current = out;
+  while (current !== root) {
+    try { if (fs.lstatSync(current).isSymbolicLink()) throw new Error('Output traverses a symbolic link: ' + current); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    current = path.dirname(current);
+  }
+  return out;
+}
+
 const CONFIG_PATH = path.resolve(process.cwd(), 'harness.config.json');
 
 switch (command) {
@@ -38,6 +51,7 @@ switch (command) {
     }
 
     const compiled = compileAll(config);
+    for (const filename of Object.keys(compiled)) checkDestination(filename);
     for (const [filename, content] of Object.entries(compiled)) {
       const outPath = path.resolve(process.cwd(), filename);
       const dir = path.dirname(outPath);
@@ -61,12 +75,13 @@ switch (command) {
 
     const compiled = compileAll(config);
     if (compiled['.githooks/pre-commit']) {
-      const hookPath = path.resolve(process.cwd(), '.githooks/pre-commit');
+      const hookPath = checkDestination('.githooks/pre-commit');
       const dir = path.dirname(hookPath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(hookPath, compiled['.githooks/pre-commit'], { encoding: 'utf-8', mode: 0o755 });
+      fs.chmodSync(hookPath, 0o755);
       console.log('✔ Installed deterministic pre-commit hook in .githooks/pre-commit');
       console.log('ℹ To enable git hook enforcement, run: git config core.hooksPath .githooks');
     }
@@ -97,12 +112,12 @@ switch (command) {
   }
 
   case 'version': {
-    console.log('polyharness v0.2.0 — Universal AI Agent Harness Transpiler');
+    console.log('polyharness v0.2.1 — Universal AI Agent Harness Transpiler');
     break;
   }
 
   default: {
-    console.log(`polyharness — Universal Transpiler & Package Manager for AI Agent Harnesses
+    console.log(`polyharness — Configuration generator for AI Agent Harnesses
 
 Usage:
   polyharness init       Generate harness.config.json template

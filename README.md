@@ -1,116 +1,54 @@
-# polyharness 🌐
+# Polyharness 🌐
 
-> **The Universal Transpiler & Package Manager for AI Agent Harnesses**
+**One config. Every coding assistant.**
 
-[![CI](https://github.com/Buzburg/polyharness/actions/workflows/ci.yml/badge.svg)](https://github.com/Buzburg/polyharness/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Keep your project instructions in one place. Polyharness turns `harness.config.json` into agent instruction files, scoped rules, and MCP configuration templates for several coding tools.
 
-`polyharness` is the "Babel + pnpm" for AI coding agent configurations. Instead of manually maintaining and synchronizing divergent rules across `CLAUDE.md`, `AGENTS.md`, `dsh.config.json` (DeepSeek Harness), and `.cursorrules`, define your project once in `harness.config.json` and compile to all platforms with a single command.
+## Try it
 
-```
-              ┌───────────────────────────┐
-              │    harness.config.json    │
-              │  (Single Source of Truth) │
-              └─────────────┬─────────────┘
-                            │  polyharness build
-         ┌──────────────────┼──────────────────┬──────────────────┐
-         ▼                  ▼                  ▼                  ▼
-    CLAUDE.md          AGENTS.md         dsh.config.json    .cursorrules
- (Anthropic specs)    (OpenCode/AGY)   (DeepSeek Harness)     (Cursor)
-         │                                                        │
-         ├────────────────────────────────────────────────────────┤
-         ▼                                                        ▼
-  .claude/rules/*.md                                    .cursor/rules/*.mdc
-  .claude/mcp.json                                      .cursor/mcp.json
-  (Progressive Disclosure)                              (Scoped .mdc Rules)
-         │
-         └─────────────► .githooks/pre-commit & scripts/safe-exec.sh
-                         (Deterministic Action Guardrails)
-```
+Requires Node.js 22+ and Git. No runtime npm dependencies.
 
----
-
-## ⚡ Features
-
-- **Write Once, Target Everywhere:** Generates calibrated `CLAUDE.md`, `AGENTS.md`, `dsh.config.json`, and `.cursorrules`.
-- **Behavior-Guided Progressive Disclosure:** Emits directory-scoped sub-rules (`.cursor/rules/*.mdc` and `.claude/rules/*.md`) based on [arXiv:2607.13285](https://arxiv.org/abs/2607.13285) to cut token usage and prevent context saturation.
-- **Deterministic Action Guardrails (`polyharness protect`):** Solves the configuration vulnerability highlighted in [HarnessRisk (arXiv:2608.17597)](https://arxiv.org/abs/2608.17597) by enforcing `.githooks/pre-commit` and execution filters rather than relying solely on soft prompt warnings.
-- **Cross-Platform MCP Registry:** Centrally configures MCP tools and transpiles to `.cursor/mcp.json` and `.claude/mcp.json`.
-- **Semantic Conflict & Contradiction Detection:** Built-in semantic linter detects opposing instructions before agents get confused.
-- **Drift Protection:** CI check guarantees that scripts referenced in agent instructions match actual project files.
-- **Zero Heavy Dependencies:** Lightweight, blazingly fast native ESM implementation.
-
----
-
-## 🚀 Quickstart
-
-### Installation
-
-```bash
-# Global install via npm
+```sh
 git clone https://github.com/Buzburg/polyharness.git
 cd polyharness
 npm install --global .
-
-# Or npx
-npx polyharness init
 ```
 
-### Workflow
+In a disposable project directory:
 
-```bash
-# 1. Initialize template in your repo
+```sh
 polyharness init
-
-# 2. Compile to all agent formats (including scoped rules & MCP)
-polyharness build
-
-# 3. Install deterministic pre-commit git hooks for protected paths
-polyharness protect
-
-# 4. Lint for contradictions & missing verification scripts
+# Edit harness.config.json for your own commands, rules, and tools.
 polyharness check
+polyharness build
 ```
 
----
+**Build overwrites generated files.** Commit or back up existing instruction files first, then review the generated diff. The example MCP server is a template: configure a real server and credentials before use. Environment placeholders are emitted literally; expansion depends on the client.
 
-## 📝 Example `harness.config.json`
+## Generated files
 
-```json
-{
-  "name": "my-service",
-  "version": "1.0.0",
-  "description": "Payment microservice",
-  "stack": {
-    "primary": "typescript",
-    "framework": "express"
-  },
-  "guidelines": [
-    "Run tests before completing tasks",
-    "Preserve docstrings and existing tests",
-    "Never commit .env files"
-  ],
-  "commands": {
-    "test": "npm test",
-    "build": "npm run build"
-  },
-  "safety": {
-    "destructive_commands_deny": ["rm -rf /", "git push --force"],
-    "protected_paths": [".env", "config/secrets.json"]
-  }
-}
+- `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, and `dsh.config.json`.
+- Named rules under `.claude/rules/` and `.cursor/rules/`.
+- MCP templates under `.claude/mcp.json` and `.cursor/mcp.json`.
+- Optional `.githooks/pre-commit` and `scripts/safe-exec.sh` policy filters.
+
+Client configuration formats evolve; inspect output and place MCP templates where your installed client expects them. Polyharness generates text; it cannot guarantee identical behavior across models or clients.
+
+## Opt-in checks
+
+```sh
+polyharness protect
+git config core.hooksPath .githooks
+sh scripts/safe-exec.sh git status
 ```
 
----
+Run `build` before using the generated execution filter. `protect` writes an executable pre-commit hook; enabling it replaces the repository's configured hooks path. Generated checks require Node.js. They match explicit paths or literal command patterns and are bypassable; they are not a sandbox or a security boundary.
 
-## 🧪 Testing
+## Verify
 
-```bash
+```sh
 npm test
+npm pack --dry-run
 ```
 
----
-
-## 📄 License
-
-[MIT](LICENSE) © 2026 Buzburg AI
+Developer beta. [Release verification](RELEASE_VERIFICATION.md). MIT licensed. Built by Buzburg.

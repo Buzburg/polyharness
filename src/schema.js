@@ -32,6 +32,22 @@ export function validateHarnessConfig(config) {
     errors.push("'mcp_servers' must be an object defining MCP servers");
   }
 
+  if (Array.isArray(config.rules)) {
+    const names = new Set();
+    for (const rule of config.rules) {
+      if (!rule || typeof rule.name !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(rule.name)) {
+        errors.push('Rule names must contain only letters, numbers, underscores and hyphens');
+      } else if (names.has(rule.name.toLowerCase())) {
+        errors.push('Rule names must be unique, ignoring case');
+      } else { names.add(rule.name.toLowerCase()); }
+      if (!rule || !Array.isArray(rule.guidelines) || !rule.guidelines.every(x => typeof x === 'string')) {
+        errors.push('Rule guidelines must be strings');
+      }
+    }
+  }
+  if (Array.isArray(config.guidelines) && !config.guidelines.every(x => typeof x === 'string')) {
+    errors.push('Guidelines must be strings');
+  }
   return {
     valid: errors.length === 0,
     errors,
